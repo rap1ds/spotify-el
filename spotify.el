@@ -165,20 +165,30 @@ to the mini buffer."
           (when title (message "%s" title))
         title)))
 
+ (defvar spotify-current-track-value nil
+   "Fomatted title for current Spotify track")
+
+  (defvar spotify-current-track-timer nil
+    "Object returned by `run-at-time'.")
+
   (defun spotify-enable-song-notifications ()
     "Enable notifications for the currently playing song in spotify application.
 
 Changes to the currently playing song in spotify will be echoed
 to the mini buffer."
     (interactive)
-    ;; TODO Implement
-    (message "Enabled song notifications"))
+    (setq spotify-current-track-timer
+          (run-at-time "0 secs" 5 (lambda ()
+                                    (let ((new-current-value (spotify-current)))
+                                      (when (not (string= spotify-current-track-value new-current-value))
+                                        (setq spotify-current-track-value new-current-value)
+                                        (message new-current-value)))))))
 
   (defun spotify-disable-song-notifications ()
     "Disable notifications for the currently playing song in spotify application."
     (interactive)
-    ;; TODO Implement
-    (message "Enabled song notifications")))
+    (setq spotify-current-track-value nil)
+    (when spotify-current-track-timer (cancel-timer spotify-current-track-timer))))
 
 (defmacro spotify-defun-player-command (command)
   `(defun ,(intern (concat "spotify-" (downcase command))) ()
