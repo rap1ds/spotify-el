@@ -191,19 +191,21 @@ to the mini buffer."
 Changes to the currently playing song in spotify will be echoed
 to the mini buffer."
     (interactive)
-    (setq spotify-current-track-timer
-          (run-at-time "0 secs" 5 (lambda ()
-                                    (let ((new-current-value (spotify-current))
-                                          (new-player-state-value (spotify-status)))
-                                      (cond
-                                       ;; Track changed
-                                       ((not (string= spotify-current-track-value new-current-value))
-                                        (setq spotify-current-track-value new-current-value)
-                                        (display-status-change nil new-current-value))
-                                       ;; Player state changed
-                                       ((not (string= spotify-player-state-value new-player-state-value))
-                                        (setq spotify-player-state-value new-player-state-value)
-                                        (display-status-change new-player-state-value nil))))))))
+    (when (not spotify-current-track-timer)
+      (setq spotify-current-track-timer
+            (run-at-time "0 secs" 5
+                         (lambda ()
+                           (let ((new-current-value (spotify-current))
+                                 (new-player-state-value (spotify-status)))
+                             (cond
+                              ;; Track changed
+                              ((not (string= spotify-current-track-value new-current-value))
+                               (setq spotify-current-track-value new-current-value)
+                               (display-status-change nil new-current-value))
+                              ;; Player state changed
+                              ((not (string= spotify-player-state-value new-player-state-value))
+                               (setq spotify-player-state-value new-player-state-value)
+                               (display-status-change new-player-state-value nil)))))))))
 
   (defun spotify-disable-song-notifications ()
     "Disable notifications for the currently playing song in spotify application."
