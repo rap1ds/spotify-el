@@ -149,7 +149,22 @@ to the mini buffer."
                      "next track")
                     ((string= "previous" (downcase method))
                      "previous track")
-                    (t method))))))
+                    (t method)))))
+
+  (defun spotify-enable-song-notifications ()
+    "Enable notifications for the currently playing song in spotify application.
+
+Changes to the currently playing song in spotify will be echoed
+to the mini buffer."
+    (interactive)
+    ;; TODO Implement
+    (message "Enabled song notifications"))
+
+  (defun spotify-disable-song-notifications ()
+    "Disable notifications for the currently playing song in spotify application."
+    (interactive)
+    ;; TODO Implement
+    (message "Enabled song notifications")))
 
 (defmacro spotify-defun-player-command (command)
   `(defun ,(intern (concat "spotify-" (downcase command))) ()
@@ -180,16 +195,7 @@ to the mini buffer."
 ;;;###autoload (autoload 'spotify-disable-song-notifications "spotify" "Disable notifications for the currently playing song in spotify application." t)
 
 (spotify-eval-except-dbus
- (spotify-defun-player-command "Quit")
-
- (defun spotify-enable-song-notifications ()
-   "Not implemented for this platform."
-   (interactive)
-   (error "Not implemented for this platform"))
- (defun spotify-disable-song-notifications ()
-   "Not implemented for this platform."
-   (interactive)
-   (error "Not implemented for this platform")))
+ (spotify-defun-player-command "Quit"))
 
 (provide 'spotify)
 
