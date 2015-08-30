@@ -152,6 +152,10 @@ to the mini buffer."
                      "next track")
                     ((string= "previous" (downcase method))
                      "previous track")
+                    ((string= "status" (downcase method))
+                     "set currentStatus to player state
+                      return currentStatus"
+                     )
                     ((string= "current" (downcase method))
                       "set currentArtist to artist of current track as string
                        set currentTrack to name of current track as string
@@ -159,6 +163,10 @@ to the mini buffer."
                        set currentAlbum to album of current track as string
                        return currentArtist & \\\" / \\\" & currentAlbum & \\\" / \\\" & currentTrackNumber & \\\": \\\" & currentTrack")
                     (t method)))))
+
+  (defun spotify-status ()
+    "Return the current player status."
+    (spotify-osa-call "status"))
 
   (defun spotify-current ()
     "Return the current song playing in spotify application."
@@ -171,6 +179,9 @@ to the mini buffer."
  (defvar spotify-current-track-value nil
    "Fomatted title for current Spotify track")
 
+ (defvar spotify-player-state-value nil
+   "Current player state")
+
   (defvar spotify-current-track-timer nil
     "Object returned by `run-at-time'.")
 
@@ -182,10 +193,17 @@ to the mini buffer."
     (interactive)
     (setq spotify-current-track-timer
           (run-at-time "0 secs" 5 (lambda ()
-                                    (let ((new-current-value (spotify-current)))
-                                      (when (not (string= spotify-current-track-value new-current-value))
+                                    (let ((new-current-value (spotify-current))
+                                          (new-player-state-value (spotify-status)))
+                                      (cond
+                                       ;; Track changed
+                                       ((not (string= spotify-current-track-value new-current-value))
                                         (setq spotify-current-track-value new-current-value)
-                                        (display-status-change nil new-current-value)))))))
+                                        (display-status-change nil new-current-value))
+                                       ;; Player state changed
+                                       ((not (string= spotify-player-state-value new-player-state-value))
+                                        (setq spotify-player-state-value new-player-state-value)
+                                        (display-status-change new-player-state-value nil))))))))
 
   (defun spotify-disable-song-notifications ()
     "Disable notifications for the currently playing song in spotify application."
