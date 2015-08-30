@@ -62,6 +62,10 @@
   (unless (spotify-p-dbus)
     (eval `(quote (progn ,@body)))))
 
+(defun display-status-change (status current)
+  (cond (current (message "Now playing: %s" current))
+        (status (message "Spotify %s" status))))
+
 (spotify-eval-only-dbus
   (defun spotify-dbus-call (interface method)
     "On INTERFACE call METHOD via D-Bus on the Spotify service."
@@ -113,8 +117,7 @@ The INTERFACE argument is ignored, PROPERTIES is expected to be
 an alist and the IGNORED argument is also ignored."
     (let ((status (cl-caadr (assoc "PlaybackStatus" properties)))
           (current (spotify-humanize-metadata (cl-caadr (assoc "Metadata" properties)))))
-      (cond (current (message "Now playing: %s" current))
-            (status (message "Spotify %s" status)))))
+      (display-status-change status current)))
 
   (defvar spotify-metadata-change-listener-id nil
     "Object returned by `dbus-register-signal'.")
@@ -182,7 +185,7 @@ to the mini buffer."
                                     (let ((new-current-value (spotify-current)))
                                       (when (not (string= spotify-current-track-value new-current-value))
                                         (setq spotify-current-track-value new-current-value)
-                                        (message new-current-value)))))))
+                                        (display-status-change nil new-current-value)))))))
 
   (defun spotify-disable-song-notifications ()
     "Disable notifications for the currently playing song in spotify application."
