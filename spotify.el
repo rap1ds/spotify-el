@@ -141,7 +141,7 @@ to the mini buffer."
 (spotify-eval-except-dbus
  (defmacro spotify-osa-call (method)
    "Tel Spotify to do METHOD via osascript."
-   `(shell-command
+   `(shell-command-to-string
      ,(format "osascript -e \"tell application \\\"Spotify\\\"
                  %s
                end tell\""
@@ -149,7 +149,21 @@ to the mini buffer."
                      "next track")
                     ((string= "previous" (downcase method))
                      "previous track")
+                    ((string= "current" (downcase method))
+                      "set currentArtist to artist of current track as string
+                       set currentTrack to name of current track as string
+                       set currentTrackNumber to track number of current track as string
+                       set currentAlbum to album of current track as string
+                       return currentArtist & \\\" / \\\" & currentAlbum & \\\" / \\\" & currentTrackNumber & \\\": \\\" & currentTrack")
                     (t method)))))
+
+  (defun spotify-current ()
+    "Return the current song playing in spotify application."
+    (interactive)
+    (let* ((title (spotify-osa-call "current")))
+      (if (called-interactively-p 'interactive)
+          (when title (message "%s" title))
+        title)))
 
   (defun spotify-enable-song-notifications ()
     "Enable notifications for the currently playing song in spotify application.
