@@ -142,7 +142,9 @@ to the mini buffer."
  (defmacro spotify-osa-call (method)
    "Tel Spotify to do METHOD via osascript."
    `(shell-command
-     ,(format "osascript -e \"tell application \\\"Spotify\\\" to %s\""
+     ,(format "osascript -e \"tell application \\\"Spotify\\\"
+                 %s
+               end tell\""
               (cond ((string= "next" (downcase method))
                      "next track")
                     ((string= "previous" (downcase method))
